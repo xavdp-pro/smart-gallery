@@ -1,0 +1,1 @@
+je veux que tu tests avec le mcp broser tous les comportement que tu a codé : fait une checklsit et test tout avec screnshot et analyse de la console javascript
