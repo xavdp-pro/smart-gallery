@@ -36,13 +36,13 @@ export const AI_PROVIDERS_CONFIG = {
   },
   openrouter: {
     id: 'openrouter',
-    name: 'OpenRouter Mistral Free',
+    name: 'OpenRouter NVIDIA Free',
     icon: '🟠',
     type: 'cloud',
     cost: 'gratuit',
     envKey: 'OPENROUTER_API_KEY',
-    model: 'mistralai/mistral-small-3.1-24b-instruct:free',
-    description: 'Mistral Small 3.1 24B - 100% gratuit (vision)'
+    model: 'nvidia/nemotron-nano-12b-v2-vl:free',
+    description: 'NVIDIA Nemotron 12B VL - 100% gratuit (vision)'
   }
 };
 
