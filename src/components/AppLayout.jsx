@@ -100,7 +100,7 @@ export default function AppLayout({ children }) {
                 <select
                   value={aiProvider}
                   onChange={(e) => handleProviderChange(e.target.value)}
-                  className="px-3 py-2 text-sm font-medium bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer hover:border-purple-400 transition-all"
+                  className="px-3 py-2 text-sm font-medium bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900 dark:to-blue-900 border-2 border-purple-300 dark:border-purple-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer hover:border-purple-400 dark:hover:border-purple-500 transition-all dark:text-white"
                 >
                   {providersInfo
                     .filter(provider => provider.available)
@@ -112,7 +112,7 @@ export default function AppLayout({ children }) {
                   }
                 </select>
               ) : (
-                <div className="px-3 py-2 text-sm font-medium bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg">
+                <div className="px-3 py-2 text-sm font-medium bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900 dark:to-blue-900 border-2 border-purple-200 dark:border-purple-600 rounded-lg dark:text-white">
                   {providersInfo.find(p => p.id === aiProvider)?.icon} {providersInfo.find(p => p.id === aiProvider)?.name || 'IA'}
                 </div>
               )}
@@ -149,14 +149,14 @@ export default function AppLayout({ children }) {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="w-9 h-9 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="text-left hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                 </div>
               </button>
 
@@ -167,12 +167,12 @@ export default function AppLayout({ children }) {
                     className="fixed inset-0 z-10" 
                     onClick={() => setShowUserMenu(false)}
                   ></div>
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-20">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-20">
+                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                       {user?.role === 'admin' && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 mt-2 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 mt-2 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
                           <Shield className="w-3 h-3" />
                           Administrateur
                         </span>
@@ -182,7 +182,7 @@ export default function AppLayout({ children }) {
                     <div className="py-1">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Se déconnecter</span>

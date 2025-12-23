@@ -12,13 +12,17 @@ const resources = {
   es: { translation: es }
 };
 
+const savedLang = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null;
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
+    lng: savedLang || 'fr',
     fallbackLng: 'fr',
     supportedLngs: ['fr', 'en', 'es'],
+    debug: true,
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
@@ -26,6 +30,9 @@ i18n
     },
     interpolation: {
       escapeValue: false
+    },
+    react: {
+      useSuspense: false
     }
   });
 
