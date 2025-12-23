@@ -88,20 +88,35 @@ export default function PhotoGallery() {
         icon: '🎉',
       })
       
+      const photoId = parseInt(data.photoId)
+      
       // Mettre à jour la liste des photos
       setPhotos(prev => prev.map(p => 
-        p.id === data.photoId ? data.photo : p
+        p.id === photoId ? data.photo : p
       ))
       
-      // Mettre à jour directement les tags si c'est la photo sélectionnée
+      // Mettre à jour directement les tags et métadonnées si c'est la photo sélectionnée
       setSelectedPhoto(current => {
-        if (current && current.id === data.photoId) {
-          console.log('🔄 Updating tags for selected photo')
-          setSelectedPhotoTags(data.photo.tags)
-          return { ...data.photo } // Créer un nouvel objet pour forcer le re-render
+        if (current && current.id === photoId) {
+          console.log('🔄 Updating tags and metadata for selected photo')
+          // Mettre à jour les tags immédiatement
+          setSelectedPhotoTags(data.photo.tags || [])
+          // Retourner la photo complète avec métadonnées
+          return { ...data.photo }
         }
         return current
       })
+      
+      // Refetch les métadonnées après un court délai pour s'assurer que tout est à jour
+      setTimeout(() => {
+        setSelectedPhoto(current => {
+          if (current && current.id === photoId) {
+            fetchPhotoMetadata(photoId)
+            fetchPhotoTags(photoId)
+          }
+          return current
+        })
+      }, 500)
     })
 
     newSocket.on('photo:error', (data) => {
