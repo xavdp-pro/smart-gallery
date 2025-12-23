@@ -29,7 +29,7 @@ const openrouter = new OpenAI({
 export async function getOpenAIUsage() {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
-    
+
     // 1. Récupérer les informations de facturation (crédit restant)
     const billingResponse = await fetch(
       'https://api.openai.com/v1/dashboard/billing/credit_grants',
@@ -99,7 +99,7 @@ export async function analyzeImage(imagePath) {
     // Récupérer le provider configuré
     const providerSetting = getSetting('ai_provider');
     const provider = providerSetting?.value || 'ollama';
-    
+
     console.log(`🤖 Using AI provider: ${provider.toUpperCase()}`);
 
     // Read the image file and convert to base64
@@ -110,9 +110,9 @@ export async function analyzeImage(imagePath) {
     // OLLAMA - Utiliser votre instance Ollama locale avec LLaVA
     if (provider === 'ollama') {
       console.log('🦙 Using Ollama with LLaVA');
-      
+
       const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-      
+
       // Appeler Ollama avec LLaVA pour analyse vision
       const response = await fetch(`${OLLAMA_URL}/api/generate`, {
         method: 'POST',
@@ -135,16 +135,16 @@ export async function analyzeImage(imagePath) {
 
       const result = await response.json();
       const description = result.response || '';
-      
+
       console.log('🦙 LLaVA response:', description.substring(0, 200));
-      
+
       // Extraire des tags intelligemment de la description
       const stopWords = ['cette', 'dans', 'avec', 'pour', 'sont', 'très', 'plus', 'comme', 'peut', 'être', 'fait', 'tous', 'tout'];
       const words = description.toLowerCase()
         .replace(/[.,;:!?()]/g, ' ')
         .split(/\s+/)
         .filter(w => w.length > 3 && w.length < 25 && !stopWords.includes(w));
-      
+
       const tags = [...new Set(words)].slice(0, 60);
 
       // Extraire les couleurs dominantes de l'image avec Sharp
@@ -153,14 +153,14 @@ export async function analyzeImage(imagePath) {
         .resize(150, 150, { fit: 'cover' })
         .raw()
         .toBuffer({ resolveWithObject: true });
-      
+
       // Fonction pour nommer une couleur de manière précise
       function getColorName(r, g, b) {
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
         const lightness = (max + min) / 2;
         const saturation = max === min ? 0 : (max - min) / (255 - Math.abs(max + min - 255));
-        
+
         // Couleurs achromatiques (noir, blanc, gris)
         if (saturation < 0.15) {
           if (lightness > 220) return 'blanc';
@@ -169,83 +169,83 @@ export async function analyzeImage(imagePath) {
           if (lightness < 90) return 'gris foncé';
           return 'gris';
         }
-        
+
         // Couleurs chromatiques
         const dominantChannel = Math.max(r, g, b);
         const isRed = r === dominantChannel;
         const isGreen = g === dominantChannel;
         const isBlue = b === dominantChannel;
-        
+
         // Marron/Beige (rouge+vert, peu de bleu, pas trop lumineux)
         if (r > 80 && g > 60 && b < 140 && r > b && g > b && Math.abs(r - g) < 80) {
           if (lightness < 100) return 'marron';
           if (lightness < 150) return 'beige';
           return 'beige clair';
         }
-        
+
         // Orange (rouge + vert moyen, peu de bleu)
         if (isRed && r > 180 && g > 80 && g < 180 && b < 100) return 'orange';
-        
+
         // Jaune (rouge + vert, peu de bleu)
         if (r > 180 && g > 180 && b < 140) return 'jaune';
-        
+
         // Rose (rouge dominant, bleu moyen, lumineux)
         if (isRed && b > 120 && lightness > 140) return 'rose';
-        
+
         // Rouge
         if (isRed && r > 140 && g < 100 && b < 100) return 'rouge';
-        
+
         // Violet/Mauve (rouge + bleu)
         if (r > 100 && b > 100 && Math.abs(r - b) < 60 && g < Math.min(r, b) - 20) {
           return lightness > 140 ? 'mauve' : 'violet';
         }
-        
+
         // Cyan (vert + bleu, peu de rouge)
         if (g > 120 && b > 120 && r < 100) return 'cyan';
-        
+
         // Vert
         if (isGreen && g > 100 && r < 120 && b < 120) {
           return lightness > 160 ? 'vert clair' : 'vert';
         }
-        
+
         // Bleu
         if (isBlue && b > 100 && r < 120 && g < 140) {
           return lightness > 160 ? 'bleu clair' : 'bleu';
         }
-        
+
         return 'couleur';
       }
-      
+
       // Calculer les couleurs dominantes avec clustering optimisé
       const colorMap = {};
       const pixels = stats.data;
-      
+
       for (let i = 0; i < pixels.length; i += 4) {
         const r = pixels[i];
         const g = pixels[i + 1];
         const b = pixels[i + 2];
-        
+
         // Clustering plus large pour regrouper les couleurs similaires
         const rr = Math.round(r / 40) * 40;
         const gg = Math.round(g / 40) * 40;
         const bb = Math.round(b / 40) * 40;
         const key = `${rr},${gg},${bb}`;
-        
+
         colorMap[key] = (colorMap[key] || 0) + 1;
       }
-      
+
       // Trier et prendre les 5 couleurs les plus fréquentes
       const sortedColors = Object.entries(colorMap)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5);
-      
+
       const totalPixels = pixels.length / 4;
       const colors = sortedColors.map(([color, count]) => {
         const [r, g, b] = color.split(',').map(Number);
         const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
         const percentage = Math.round((count / totalPixels) * 100);
         const name = getColorName(r, g, b);
-        
+
         return { hex, name, percentage };
       }).filter(c => c.percentage > 0);
 
@@ -254,12 +254,12 @@ export async function analyzeImage(imagePath) {
         description: description,
         atmosphere: 'Analysé par Ollama LLaVA',
         colors: colors,
-        quality: { 
-          score: 80, 
-          sharpness: 'bon', 
-          lighting: 'bon', 
-          composition: 'bon', 
-          overall_rating: 'bon' 
+        quality: {
+          score: 80,
+          sharpness: 'bon',
+          lighting: 'bon',
+          composition: 'bon',
+          overall_rating: 'bon'
         },
         aiModel: 'llava'
       };
@@ -267,15 +267,15 @@ export async function analyzeImage(imagePath) {
 
     // Choisir le client et le modèle selon le provider
     let client, model;
-    
+
     if (provider === 'grok') {
       client = grok;
       model = 'grok-2-vision-1212';
     } else if (provider === 'openrouter') {
       console.log('🌐 Using OpenRouter with FREE model');
       client = openrouter;
-      // Utiliser Qwen 2.5 VL 32B (100% GRATUIT, alternative à Gemini temporairement rate-limité)
-      model = 'qwen/qwen2.5-vl-32b-instruct:free';
+      // Utiliser Qwen 2.5 VL 7B (100% GRATUIT)
+      model = 'qwen/qwen-2.5-vl-7b-instruct:free';
     } else {
       client = openai;
       model = 'gpt-4o';
@@ -358,7 +358,7 @@ Retourne UNIQUEMENT l'objet JSON, aucun autre texte.`
     });
 
     const content = response.choices[0].message.content.trim();
-    
+
     // Parse JSON response
     let analysisData;
     try {
