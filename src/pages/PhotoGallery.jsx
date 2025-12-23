@@ -32,6 +32,17 @@ export default function PhotoGallery() {
   const [quotaErrorModal, setQuotaErrorModal] = useState({ isOpen: false, provider: '', error: '' })
   const [reanalyzing, setReanalyzing] = useState(false)
 
+  // Fonction pour traduire les valeurs de qualité
+  const translateQuality = (value) => {
+    if (!value) return ''
+    const normalized = value.toLowerCase()
+    if (['excellent', 'excellente', 'excelente'].includes(normalized)) return t('gallery.excellent')
+    if (['good', 'bon', 'bonne', 'bueno', 'buena'].includes(normalized)) return t('gallery.good')
+    if (['average', 'moyen', 'moyenne', 'medio', 'media'].includes(normalized)) return t('gallery.average')
+    if (['poor', 'faible', 'bajo', 'baja'].includes(normalized)) return t('gallery.poor')
+    return value
+  }
+
   const closeFullscreen = () => {
     setIsFullscreen(false)
   }
@@ -1048,7 +1059,7 @@ export default function PhotoGallery() {
                                     />
                                   </div>
                                   <span className="text-xs text-slate-500 dark:text-gray-400 mt-1 capitalize">
-                                    {selectedPhoto.metadata.quality_overall}
+                                    {translateQuality(selectedPhoto.metadata.quality_overall)}
                                   </span>
                                 </div>
                               </div>
@@ -1058,34 +1069,34 @@ export default function PhotoGallery() {
                                 <div className="bg-white dark:bg-gray-800 p-2 rounded-lg text-center">
                                   <div className="font-medium text-slate-700 dark:text-gray-300">{t('gallery.sharpness')}</div>
                                   <div className={`mt-1 capitalize font-semibold ${
-                                    (selectedPhoto.metadata.quality_sharpness === 'excellent' || selectedPhoto.metadata.quality_sharpness === 'excellente') ? 'text-green-600' :
-                                    (selectedPhoto.metadata.quality_sharpness === 'good' || selectedPhoto.metadata.quality_sharpness === 'bon' || selectedPhoto.metadata.quality_sharpness === 'bonne') ? 'text-blue-600' :
-                                    (selectedPhoto.metadata.quality_sharpness === 'average' || selectedPhoto.metadata.quality_sharpness === 'moyen' || selectedPhoto.metadata.quality_sharpness === 'moyenne') ? 'text-yellow-600' :
+                                    ['excellent', 'excellente', 'excelente'].includes(selectedPhoto.metadata.quality_sharpness?.toLowerCase()) ? 'text-green-600' :
+                                    ['good', 'bon', 'bonne', 'bueno', 'buena'].includes(selectedPhoto.metadata.quality_sharpness?.toLowerCase()) ? 'text-blue-600' :
+                                    ['average', 'moyen', 'moyenne', 'medio', 'media'].includes(selectedPhoto.metadata.quality_sharpness?.toLowerCase()) ? 'text-yellow-600' :
                                     'text-red-600'
                                   }`}>
-                                    {selectedPhoto.metadata.quality_sharpness}
+                                    {translateQuality(selectedPhoto.metadata.quality_sharpness)}
                                   </div>
                                 </div>
                                 <div className="bg-white dark:bg-gray-800 p-2 rounded-lg text-center">
                                   <div className="font-medium text-slate-700 dark:text-gray-300">{t('gallery.lighting')}</div>
                                   <div className={`mt-1 capitalize font-semibold ${
-                                    (selectedPhoto.metadata.quality_lighting === 'excellent' || selectedPhoto.metadata.quality_lighting === 'excellente') ? 'text-green-600' :
-                                    (selectedPhoto.metadata.quality_lighting === 'good' || selectedPhoto.metadata.quality_lighting === 'bon' || selectedPhoto.metadata.quality_lighting === 'bonne') ? 'text-blue-600' :
-                                    (selectedPhoto.metadata.quality_lighting === 'average' || selectedPhoto.metadata.quality_lighting === 'moyen' || selectedPhoto.metadata.quality_lighting === 'moyenne') ? 'text-yellow-600' :
+                                    ['excellent', 'excellente', 'excelente'].includes(selectedPhoto.metadata.quality_lighting?.toLowerCase()) ? 'text-green-600' :
+                                    ['good', 'bon', 'bonne', 'bueno', 'buena'].includes(selectedPhoto.metadata.quality_lighting?.toLowerCase()) ? 'text-blue-600' :
+                                    ['average', 'moyen', 'moyenne', 'medio', 'media'].includes(selectedPhoto.metadata.quality_lighting?.toLowerCase()) ? 'text-yellow-600' :
                                     'text-red-600'
                                   }`}>
-                                    {selectedPhoto.metadata.quality_lighting}
+                                    {translateQuality(selectedPhoto.metadata.quality_lighting)}
                                   </div>
                                 </div>
                                 <div className="bg-white dark:bg-gray-800 p-2 rounded-lg text-center">
                                   <div className="font-medium text-slate-700 dark:text-gray-300">{t('gallery.composition')}</div>
                                   <div className={`mt-1 capitalize font-semibold ${
-                                    (selectedPhoto.metadata.quality_composition === 'excellent' || selectedPhoto.metadata.quality_composition === 'excellente') ? 'text-green-600' :
-                                    (selectedPhoto.metadata.quality_composition === 'good' || selectedPhoto.metadata.quality_composition === 'bon' || selectedPhoto.metadata.quality_composition === 'bonne') ? 'text-blue-600' :
-                                    (selectedPhoto.metadata.quality_composition === 'average' || selectedPhoto.metadata.quality_composition === 'moyen' || selectedPhoto.metadata.quality_composition === 'moyenne') ? 'text-yellow-600' :
+                                    ['excellent', 'excellente', 'excelente'].includes(selectedPhoto.metadata.quality_composition?.toLowerCase()) ? 'text-green-600' :
+                                    ['good', 'bon', 'bonne', 'bueno', 'buena'].includes(selectedPhoto.metadata.quality_composition?.toLowerCase()) ? 'text-blue-600' :
+                                    ['average', 'moyen', 'moyenne', 'medio', 'media'].includes(selectedPhoto.metadata.quality_composition?.toLowerCase()) ? 'text-yellow-600' :
                                     'text-red-600'
                                   }`}>
-                                    {selectedPhoto.metadata.quality_composition}
+                                    {translateQuality(selectedPhoto.metadata.quality_composition)}
                                   </div>
                                 </div>
                               </div>
