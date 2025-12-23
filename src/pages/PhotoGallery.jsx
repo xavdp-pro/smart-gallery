@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Upload, Image as ImageIcon, Tag, X, Plus, Loader2, Trash2, Search, Download, Maximize2, Edit2, Check, RefreshCw, Brain, Smartphone } from 'lucide-react'
 import { io } from 'socket.io-client'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import UploadProgress from '../components/UploadProgress'
 import ConfirmModal from '../components/ConfirmModal'
@@ -10,6 +11,7 @@ import '../App.css'
 
 export default function PhotoGallery() {
   const { token } = useAuth()
+  const { i18n } = useTranslation()
   const [photos, setPhotos] = useState([])
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [selectedPhotoTags, setSelectedPhotoTags] = useState([])
@@ -295,6 +297,7 @@ export default function PhotoGallery() {
 
     const formData = new FormData()
     formData.append('photo', file)
+    formData.append('language', i18n.language)
     
     // Ajouter le socket ID pour recevoir les mises à jour
     if (socket && socket.connected) {
@@ -563,7 +566,8 @@ export default function PhotoGallery() {
           'X-Socket-Id': socket?.id
         },
         body: JSON.stringify({
-          socketId: socket?.id
+          socketId: socket?.id,
+          language: i18n.language
         })
       })
 

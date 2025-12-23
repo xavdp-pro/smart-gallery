@@ -16,8 +16,8 @@ export const photoQueue = new Queue('photo-processing', {
 
 // Traiter les jobs de la queue
 photoQueue.process(async (job) => {
-  const { photoId, imagePath, socketId } = job.data;
-  
+  const { photoId, imagePath, socketId, language = 'fr' } = job.data;
+
   try {
     // Étape 1: Début de l'analyse
     job.progress(10);
@@ -41,8 +41,8 @@ photoQueue.process(async (job) => {
       });
     }
 
-    const analysisResult = await analyzeImage(imagePath);
-    
+    const analysisResult = await analyzeImage(imagePath, language);
+
     // Étape 3: Sauvegarde des tags et métadonnées
     job.progress(70);
     if (global.io && socketId) {
@@ -89,7 +89,7 @@ photoQueue.process(async (job) => {
     return { success: true, photoId, tagsCount: photoTags.length };
   } catch (error) {
     console.error('Error processing photo:', error);
-    
+
     if (global.io && socketId) {
       global.io.to(socketId).emit('photo:error', {
         photoId,
@@ -97,7 +97,7 @@ photoQueue.process(async (job) => {
         message: 'Erreur lors de l\'analyse de la photo'
       });
     }
-    
+
     throw error;
   }
 });

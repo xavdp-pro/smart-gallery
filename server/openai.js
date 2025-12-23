@@ -95,13 +95,38 @@ export async function getOpenAIUsage() {
   }
 }
 
-export async function analyzeImage(imagePath) {
+// Configuration des langues pour les prompts
+const LANGUAGE_CONFIG = {
+  fr: {
+    name: 'français',
+    systemPrompt: "Tu es un expert en analyse d'images. Tu fournis des analyses complètes et détaillées incluant des tags, descriptions, couleurs et évaluation de qualité. Tu réponds TOUJOURS en français.",
+    ollamaPrompt: "Décris cette image en français de manière détaillée en incluant tous les objets visibles, les couleurs, l'ambiance, le style, la composition et l'éclairage.",
+    stopWords: ['cette', 'dans', 'avec', 'pour', 'sont', 'très', 'plus', 'comme', 'peut', 'être', 'fait', 'tous', 'tout']
+  },
+  en: {
+    name: 'English',
+    systemPrompt: "You are an expert in image analysis. You provide complete and detailed analyses including tags, descriptions, colors and quality assessment. You ALWAYS respond in English.",
+    ollamaPrompt: "Describe this image in English in detail including all visible objects, colors, atmosphere, style, composition and lighting.",
+    stopWords: ['this', 'that', 'with', 'from', 'have', 'been', 'were', 'they', 'their', 'what', 'when', 'where', 'which', 'there', 'these', 'those', 'about', 'would', 'could', 'should', 'being', 'very', 'more', 'some', 'into', 'also']
+  },
+  es: {
+    name: 'español',
+    systemPrompt: "Eres un experto en análisis de imágenes. Proporcionas análisis completos y detallados que incluyen etiquetas, descripciones, colores y evaluación de calidad. SIEMPRE respondes en español.",
+    ollamaPrompt: "Describe esta imagen en español de manera detallada incluyendo todos los objetos visibles, los colores, el ambiente, el estilo, la composición y la iluminación.",
+    stopWords: ['esta', 'este', 'esto', 'esos', 'esas', 'para', 'como', 'pero', 'más', 'todo', 'todos', 'toda', 'todas', 'puede', 'sido', 'están', 'tiene', 'tienen', 'desde', 'donde', 'cuando', 'sobre', 'entre', 'también', 'aunque', 'porque', 'mientras']
+  }
+};
+
+export async function analyzeImage(imagePath, language = 'fr') {
   try {
     // Récupérer le provider configuré
     const providerSetting = getSetting('ai_provider');
     const provider = providerSetting?.value || 'ollama';
 
-    console.log(`🤖 Using AI provider: ${provider.toUpperCase()}`);
+    // Récupérer la config de langue (défaut: français)
+    const langConfig = LANGUAGE_CONFIG[language] || LANGUAGE_CONFIG.fr;
+
+    console.log(`🤖 Using AI provider: ${provider.toUpperCase()} | Language: ${langConfig.name}`);
 
     // Read the image file and convert to base64
     const imageBuffer = readFileSync(imagePath);
@@ -122,7 +147,7 @@ export async function analyzeImage(imagePath) {
         },
         body: JSON.stringify({
           model: 'llava:7b',
-          prompt: `Décris cette image en français de manière détaillée en incluant tous les objets visibles, les couleurs, l'ambiance, le style, la composition et l'éclairage.`,
+          prompt: langConfig.ollamaPrompt,
           images: [base64Image],
           stream: false
         })
@@ -140,7 +165,7 @@ export async function analyzeImage(imagePath) {
       console.log('🦙 LLaVA response:', description.substring(0, 200));
 
       // Extraire des tags intelligemment de la description
-      const stopWords = ['cette', 'dans', 'avec', 'pour', 'sont', 'très', 'plus', 'comme', 'peut', 'être', 'fait', 'tous', 'tout'];
+      const stopWords = langConfig.stopWords;
       const words = description.toLowerCase()
         .replace(/[.,;:!?()]/g, ' ')
         .split(/\s+/)
@@ -286,63 +311,59 @@ export async function analyzeImage(imagePath) {
       messages: [
         {
           role: "system",
-          content: "Tu es un expert en analyse d'images. Tu fournis des analyses complètes et détaillées incluant des tags, descriptions, couleurs et évaluation de qualité. Tu réponds TOUJOURS en français."
+          content: langConfig.systemPrompt
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Analyse cette image en détail extrême et fournis une analyse complète au format JSON.
+              text: `Analyze this image in extreme detail and provide a complete analysis in JSON format.
 
 IMPORTANT: 
-- TOUS les tags doivent être en FRANÇAIS
-- La description doit être en FRANÇAIS
-- L'atmosphère doit être en FRANÇAIS
-- Les noms de couleurs doivent être en FRANÇAIS
+- ALL tags must be in ${langConfig.name.toUpperCase()}
+- The description must be in ${langConfig.name.toUpperCase()}
+- The atmosphere must be in ${langConfig.name.toUpperCase()}
+- Color names must be in ${langConfig.name.toUpperCase()}
 
-Retourne un objet JSON avec la structure suivante:
+Return a JSON object with the following structure:
 {
   "tags": ["tag1", "tag2", ...],
-  "description": "Description détaillée de l'image en français (2-3 phrases). COMMENCE TOUJOURS par identifier le TYPE DE LIEU précis (ex: 'Cuisine aménagée moderne...', 'Salon spacieux...', 'Chambre cosy...', 'Bureau professionnel...', 'Jardin paysager...', etc.)",
-  "atmosphere": "L'ambiance et le mood de la scène en français",
+  "description": "Detailed description of the image in ${langConfig.name} (2-3 sentences). ALWAYS start by identifying the precise TYPE OF PLACE.",
+  "atmosphere": "The mood and atmosphere of the scene in ${langConfig.name}",
   "dominant_colors": [
-    {"hex": "#RRGGBB", "name": "nom de la couleur en français", "percentage": 40},
-    {"hex": "#RRGGBB", "name": "nom de la couleur en français", "percentage": 30},
-    {"hex": "#RRGGBB", "name": "nom de la couleur en français", "percentage": 20}
+    {"hex": "#RRGGBB", "name": "color name in ${langConfig.name}", "percentage": 40},
+    {"hex": "#RRGGBB", "name": "color name in ${langConfig.name}", "percentage": 30},
+    {"hex": "#RRGGBB", "name": "color name in ${langConfig.name}", "percentage": 20}
   ],
   "quality": {
     "score": 85,
-    "sharpness": "excellent|bon|moyen|faible",
-    "lighting": "excellent|bon|moyen|faible",
-    "composition": "excellent|bon|moyen|faible",
-    "overall_rating": "excellent|bon|moyen|faible"
+    "sharpness": "excellent|good|average|poor",
+    "lighting": "excellent|good|average|poor",
+    "composition": "excellent|good|average|poor",
+    "overall_rating": "excellent|good|average|poor"
   }
 }
 
-Pour les TAGS (TOUS EN FRANÇAIS), inclus TOUTES ces catégories:
-1. TYPE DE LIEU (PRIORITAIRE): Identifie précisément le type de lieu et son aménagement
-   - Intérieur: "cuisine aménagée", "cuisine moderne", "cuisine équipée", "salon", "chambre", "salle de bain", "bureau", "salle à manger", "entrée", "couloir", "cave", "grenier", "garage"
-   - Commercial: "restaurant", "café", "boutique", "magasin", "hôtel", "bureau professionnel"
-   - Extérieur: "jardin", "terrasse", "balcon", "piscine", "parc", "rue", "place", "forêt", "montagne", "plage"
-   - État/Style: "aménagé", "équipé", "meublé", "vide", "en travaux", "rénové", "neuf", "ancien"
-2. OBJETS: Chaque objet visible, élément (meubles, outils, appareils, électroménager, etc.)
-3. SUJETS: Personnes, animaux, sujets principaux (avec détails: âge, genre, pose, expression, vêtements)
-4. COULEURS: Couleurs dominantes, palettes de couleurs, tons (chauds/froids), nuances spécifiques
-5. ÉCLAIRAGE: Naturel/artificiel, moment de la journée, qualité de la lumière (douce/dure), ombres, luminosité
-6. COMPOSITION: Perspective, cadrage, profondeur de champ, règle des tiers, symétrie
-7. AMBIANCE/ATMOSPHÈRE: Émotions, sentiments, ambiance (paisible, énergique, mystérieux, etc.)
-8. ACTIVITÉS: Actions en cours, activités suggérées
-9. STYLE: Style photographique, style artistique, esthétique (moderne, vintage, minimaliste, etc.)
-10. TEXTURES: Qualités de surface (lisse, rugueux, doux, métallique, etc.)
-11. MOTIFS: Rayures, points, motifs géométriques, motifs organiques
-12. MÉTÉO: Si extérieur (ensoleillé, nuageux, pluvieux, brumeux, etc.)
-13. SAISON: Indicateurs de printemps, été, automne, hiver
-14. TECHNIQUE: Type de photo (portrait, paysage, macro, aérien, etc.)
+For TAGS (ALL IN ${langConfig.name.toUpperCase()}), include ALL these categories:
+1. TYPE OF PLACE (PRIORITY): Precisely identify the type of place
+2. OBJECTS: Every visible object, element (furniture, tools, appliances, etc.)
+3. SUBJECTS: People, animals, main subjects (with details: age, gender, pose, expression, clothing)
+4. COLORS: Dominant colors, color palettes, tones (warm/cold), specific shades
+5. LIGHTING: Natural/artificial, time of day, light quality (soft/hard), shadows, brightness
+6. COMPOSITION: Perspective, framing, depth of field, rule of thirds, symmetry
+7. MOOD/ATMOSPHERE: Emotions, feelings, ambiance (peaceful, energetic, mysterious, etc.)
+8. ACTIVITIES: Ongoing actions, suggested activities
+9. STYLE: Photographic style, artistic style, aesthetic (modern, vintage, minimalist, etc.)
+10. TEXTURES: Surface qualities (smooth, rough, soft, metallic, etc.)
+11. PATTERNS: Stripes, dots, geometric patterns, organic patterns
+12. WEATHER: If outdoor (sunny, cloudy, rainy, foggy, etc.)
+13. SEASON: Indicators of spring, summer, autumn, winter
+14. TECHNIQUE: Type of photo (portrait, landscape, macro, aerial, etc.)
 
-Génère 50-100+ tags EXHAUSTIFS en FRANÇAIS.
+Generate 50-100+ EXHAUSTIVE tags in ${langConfig.name.toUpperCase()}.
 
-Retourne UNIQUEMENT l'objet JSON, aucun autre texte.`
+Return ONLY the JSON object, no other text.`
             },
             {
               type: "image_url",

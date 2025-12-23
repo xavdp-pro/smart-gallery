@@ -550,12 +550,14 @@ app.post('/api/photos/upload', authMiddleware, upload.single('photo'), async (re
     // Ajouter le job à la queue pour traitement asynchrone
     const imagePath = join(uploadsDir, req.file.filename);
     const socketId = req.body.socketId || req.headers['x-socket-id'];
+    const language = req.body.language || 'fr';
 
     // Ajouter à la queue
     const job = await photoQueue.add({
       photoId,
       imagePath,
-      socketId
+      socketId,
+      language
     });
 
     // Retourner immédiatement la photo sans tags
@@ -592,6 +594,7 @@ app.post('/api/photos/:id/reanalyze', authMiddleware, async (req, res) => {
     }
 
     const socketId = req.body.socketId || req.headers['x-socket-id'];
+    const language = req.body.language || 'fr';
 
     // Supprimer les anciens tags et métadonnées
     runQuery('DELETE FROM photo_tags WHERE photo_id = ?', [photoId]);
@@ -601,7 +604,8 @@ app.post('/api/photos/:id/reanalyze', authMiddleware, async (req, res) => {
     const job = await photoQueue.add({
       photoId,
       imagePath,
-      socketId
+      socketId,
+      language
     });
 
     console.log(`🔄 Photo reanalysis started: ${photo.original_name} (ID: ${photoId})`);
