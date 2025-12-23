@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { readFileSync } from 'fs';
 import dotenv from 'dotenv';
 import { getSetting } from './database.js';
+import { AI_PROVIDERS_CONFIG } from './ai-providers-config.js';
 
 dotenv.config();
 
@@ -270,15 +271,14 @@ export async function analyzeImage(imagePath) {
 
     if (provider === 'grok') {
       client = grok;
-      model = 'grok-2-vision-1212';
+      model = AI_PROVIDERS_CONFIG.grok.model;
     } else if (provider === 'openrouter') {
-      console.log('🌐 Using OpenRouter with FREE model');
+      console.log('🌐 Using OpenRouter with model:', AI_PROVIDERS_CONFIG.openrouter.model);
       client = openrouter;
-      // Utiliser Qwen 2.5 VL 7B (100% GRATUIT)
-      model = 'qwen/qwen-2.5-vl-7b-instruct:free';
+      model = AI_PROVIDERS_CONFIG.openrouter.model;
     } else {
       client = openai;
-      model = 'gpt-4o';
+      model = AI_PROVIDERS_CONFIG.openai.model;
     }
 
     const response = await client.chat.completions.create({
