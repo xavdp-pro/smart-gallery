@@ -70,21 +70,36 @@ export default function Documentation() {
         sections: [
           {
             icon: Server,
-            title: "Architecture",
+            title: "Architecture & Stack Technique",
             content: `
-**Frontend** : React 18 + Vite + TailwindCSS
-- Composants fonctionnels avec hooks
-- Context API pour l'état global (Auth)
-- Socket.IO pour les mises à jour temps réel
+**Frontend**
+• React 18.3.1 - Framework UI
+• Vite 5.4.2 - Build tool
+• TailwindCSS 3.4.1 - Styling
+• react-i18next 15.1.3 - i18n (FR/EN/ES)
+• Lucide React - Icônes
+• React Router 6.28.0 - Routing
+• React Hot Toast - Notifications
 
-**Backend** : Node.js + Express
-- API RESTful avec authentification JWT
-- Middleware de protection des routes
-- Upload de fichiers avec Multer
+**Backend**
+• Node.js 18+ - Runtime
+• Express 4.21.1 - Framework web
+• SQLite (better-sqlite3 11.7.0) - Base de données
+• BullMQ 5.28.2 + Redis - File d'attente async
+• Socket.IO 4.8.1 - Temps réel
+• Multer 1.4.5 - Upload fichiers
+• Sharp 0.33.5 - Traitement images
 
-**Base de données** : SQLite
-- Tables : users, photos, tags, photo_tags, photo_metadata
-- Facilement migratable vers PostgreSQL/MySQL
+**Sécurité**
+• JWT (jsonwebtoken 9.0.2) - Auth
+• bcrypt 5.1.1 - Hash passwords
+• CORS 2.8.5 - Protection
+
+**IA**
+• OpenAI GPT-4o
+• Grok 2 Vision
+• OpenRouter (Gemini 2.0 Flash, Qwen, Llama)
+• Ollama LLaVA 7B (local)
             `
           },
           {
@@ -214,21 +229,36 @@ export default function Documentation() {
         sections: [
           {
             icon: Server,
-            title: "Architecture",
+            title: "Architecture & Tech Stack",
             content: `
-**Frontend**: React 18 + Vite + TailwindCSS
-- Functional components with hooks
-- Context API for global state (Auth)
-- Socket.IO for real-time updates
+**Frontend**
+• React 18.3.1 - UI Framework
+• Vite 5.4.2 - Build tool
+• TailwindCSS 3.4.1 - Styling
+• react-i18next 15.1.3 - i18n (FR/EN/ES)
+• Lucide React - Icons
+• React Router 6.28.0 - Routing
+• React Hot Toast - Notifications
 
-**Backend**: Node.js + Express
-- RESTful API with JWT authentication
-- Route protection middleware
-- File upload with Multer
+**Backend**
+• Node.js 18+ - Runtime
+• Express 4.21.1 - Web framework
+• SQLite (better-sqlite3 11.7.0) - Database
+• BullMQ 5.28.2 + Redis - Async queue
+• Socket.IO 4.8.1 - Real-time
+• Multer 1.4.5 - File upload
+• Sharp 0.33.5 - Image processing
 
-**Database**: SQLite
-- Tables: users, photos, tags, photo_tags, photo_metadata
-- Easily migratable to PostgreSQL/MySQL
+**Security**
+• JWT (jsonwebtoken 9.0.2) - Auth
+• bcrypt 5.1.1 - Password hashing
+• CORS 2.8.5 - Protection
+
+**AI**
+• OpenAI GPT-4o
+• Grok 2 Vision
+• OpenRouter (Gemini 2.0 Flash, Qwen, Llama)
+• Ollama LLaVA 7B (local)
             `
           },
           {
@@ -358,21 +388,36 @@ export default function Documentation() {
         sections: [
           {
             icon: Server,
-            title: "Arquitectura",
+            title: "Arquitectura & Stack Técnico",
             content: `
-**Frontend**: React 18 + Vite + TailwindCSS
-- Componentes funcionales con hooks
-- Context API para estado global (Auth)
-- Socket.IO para actualizaciones en tiempo real
+**Frontend**
+• React 18.3.1 - Framework UI
+• Vite 5.4.2 - Build tool
+• TailwindCSS 3.4.1 - Estilos
+• react-i18next 15.1.3 - i18n (FR/EN/ES)
+• Lucide React - Iconos
+• React Router 6.28.0 - Enrutamiento
+• React Hot Toast - Notificaciones
 
-**Backend**: Node.js + Express
-- API RESTful con autenticación JWT
-- Middleware de protección de rutas
-- Carga de archivos con Multer
+**Backend**
+• Node.js 18+ - Runtime
+• Express 4.21.1 - Framework web
+• SQLite (better-sqlite3 11.7.0) - Base de datos
+• BullMQ 5.28.2 + Redis - Cola async
+• Socket.IO 4.8.1 - Tiempo real
+• Multer 1.4.5 - Subida archivos
+• Sharp 0.33.5 - Procesamiento imágenes
 
-**Base de datos**: SQLite
-- Tablas: users, photos, tags, photo_tags, photo_metadata
-- Fácilmente migrable a PostgreSQL/MySQL
+**Seguridad**
+• JWT (jsonwebtoken 9.0.2) - Auth
+• bcrypt 5.1.1 - Hash contraseñas
+• CORS 2.8.5 - Protección
+
+**IA**
+• OpenAI GPT-4o
+• Grok 2 Vision
+• OpenRouter (Gemini 2.0 Flash, Qwen, Llama)
+• Ollama LLaVA 7B (local)
             `
           },
           {

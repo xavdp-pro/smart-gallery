@@ -24,16 +24,53 @@ A modern photo management application with AI-powered auto-tagging.
 
 ## 🛠️ Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Frontend | React + Vite + TailwindCSS + i18next |
-| Backend | Node.js + Express + BullMQ |
-| Database | SQLite |
-| Auth | JWT + bcrypt |
-| AI | OpenAI GPT-4o, Grok 2 Vision, OpenRouter (Gemini 2.0 Flash, Qwen, Llama 4), Ollama LLaVA |
-| Real-time | Socket.IO (polling mode for Cloudflare) |
-| Queue | BullMQ + Redis |
-| i18n | react-i18next (FR/EN/ES) |
+### Frontend
+| Technology | Version | Usage |
+|------------|---------|-------|
+| **React** | 18.3.1 | UI Framework |
+| **Vite** | 5.4.2 | Build tool & dev server |
+| **TailwindCSS** | 3.4.1 | Utility-first CSS |
+| **react-i18next** | 15.1.3 | Internationalization (FR/EN/ES) |
+| **Lucide React** | 0.index447.0 | Icon library |
+| **React Hot Toast** | 2.4.1 | Notifications |
+| **React Router** | 6.28.0 | Client-side routing |
+
+### Backend
+| Technology | Version | Usage |
+|------------|---------|-------|
+| **Node.js** | 18+ | Runtime environment |
+| **Express** | 4.21.1 | Web framework |
+| **SQLite** | better-sqlite3 11.7.0 | Database |
+| **BullMQ** | 5.28.2 | Job queue for async processing |
+| **Redis** | - | Queue backend |
+| **Socket.IO** | 4.8.1 | Real-time communication |
+| **Multer** | 1.4.5-lts.1 | File upload handling |
+| **Sharp** | 0.33.5 | Image processing |
+
+### Authentication & Security
+| Technology | Version | Usage |
+|------------|---------|-------|
+| **JWT** | jsonwebtoken 9.0.2 | Token-based auth |
+| **bcrypt** | 5.1.1 | Password hashing |
+| **cors** | 2.8.5 | CORS middleware |
+
+### AI Providers
+| Provider | Model | Usage |
+|----------|-------|-------|
+| **OpenAI** | GPT-4o | Vision analysis & tagging |
+| **Grok** | Grok 2 Vision | Alternative vision model |
+| **OpenRouter** | Gemini 2.0 Flash | Cost-effective vision (recommended) |
+| **OpenRouter** | Qwen 2.5 VL | Free/paid vision model |
+| **OpenRouter** | Llama 4 Vision | Open-source vision model |
+| **Ollama** | LLaVA 7B | Local free vision model |
+
+### Deployment & DevOps
+| Technology | Usage |
+|------------|-------|
+| **PM2** | Process manager |
+| **Cloudflare Tunnel** | Secure external access |
+| **Nginx** | Alternative reverse proxy |
+| **Let's Encrypt** | SSL certificates |
 
 ---
 
