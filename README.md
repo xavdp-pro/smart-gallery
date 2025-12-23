@@ -8,24 +8,32 @@ A modern photo management application with AI-powered auto-tagging.
 ## ✨ Features
 
 - 📸 **Photo Upload & Management** - Drag & drop or click to upload
-- 🏷️ **AI Auto-Tagging** - Automatic tagging using OpenAI, Grok, or OpenRouter
+- 🏷️ **AI Auto-Tagging** - Automatic tagging using OpenAI, Grok, OpenRouter (Gemini, Qwen, Llama), or Ollama LLaVA
+- 🤖 **Multi-Provider AI** - Switch between AI providers dynamically from the UI
+- 🔄 **Re-analysis** - Re-analyze photos with different AI models
+- 🎨 **AI Image Analysis** - Detailed descriptions, dominant colors, quality assessment
+- 🌍 **Multilingual** - Full support for French, English, and Spanish
 - 🔐 **User Authentication** - JWT-based auth with admin panel
 - 👥 **User Management** - Create, edit, delete users from admin panel
 - 🔍 **Search** - Search by photo name or tags
 - 📥 **Download** - Download photos with original names
-- 🌐 **Real-time Updates** - Socket.IO for live progress
-- 🎨 **Modern UI** - Beautiful interface with TailwindCSS
+- ✏️ **Rename Photos** - Edit photo names directly in the gallery
+- 🌐 **Real-time Updates** - Socket.IO for live progress (Cloudflare Tunnel compatible)
+- 🎨 **Modern UI** - Beautiful dark/light theme with TailwindCSS
+- 📱 **Mobile Warning** - Landscape mode recommendation for optimal experience
 
 ## 🛠️ Tech Stack
 
 | Component | Technology |
 |-----------|------------|
-| Frontend | React + Vite + TailwindCSS |
-| Backend | Node.js + Express |
+| Frontend | React + Vite + TailwindCSS + i18next |
+| Backend | Node.js + Express + BullMQ |
 | Database | SQLite |
 | Auth | JWT + bcrypt |
-| AI | OpenAI Vision API, Grok, OpenRouter |
-| Real-time | Socket.IO |
+| AI | OpenAI GPT-4o, Grok 2 Vision, OpenRouter (Gemini 2.0 Flash, Qwen, Llama 4), Ollama LLaVA |
+| Real-time | Socket.IO (polling mode for Cloudflare) |
+| Queue | BullMQ + Redis |
+| i18n | react-i18next (FR/EN/ES) |
 
 ---
 
@@ -53,9 +61,10 @@ Create a `.env` file:
 JWT_SECRET=your_super_secret_key_here
 
 # AI Providers (at least one required)
-OPENAI_API_KEY=sk-...
-GROK_API_KEY=xai-...
-OPENROUTER_API_KEY=sk-or-...
+OPENAI_API_KEY=sk-...                    # OpenAI GPT-4o Vision
+GROK_API_KEY=xai-...                     # Grok 2 Vision
+OPENROUTER_API_KEY=sk-or-...             # OpenRouter (Gemini, Qwen, Llama)
+OLLAMA_URL=http://localhost:11434       # Ollama (local, free)
 
 # Email (optional - for password reset)
 MAILJET_API_KEY=your_mailjet_key
@@ -240,6 +249,64 @@ sudo systemctl reload nginx
 
 ---
 
+## 🌍 Internationalization (i18n)
+
+Smart Gallery supports **3 languages**: French (🇫🇷), English (🇬🇧), and Spanish (🇪🇸).
+
+### Features
+- **UI Translation**: All interface elements are translated
+- **AI Language Adaptation**: AI-generated tags, descriptions, and metadata are generated in the selected language
+- **Dynamic Quality Translation**: Quality ratings (Excellent/Good/Average/Poor) are translated on-the-fly
+- **Language Selector**: Switch languages from the header dropdown
+
+### Supported Languages
+
+| Language | Code | Status |
+|----------|------|--------|
+| 🇫🇷 Français | `fr` | ✅ Complete |
+| 🇬🇧 English | `en` | ✅ Complete |
+| 🇪🇸 Español | `es` | ✅ Complete |
+
+### How It Works
+
+1. **Frontend**: Uses `react-i18next` for UI translations
+2. **Backend**: Receives language parameter during upload/reanalysis
+3. **AI Prompts**: Dynamically adapted based on selected language
+4. **Storage**: Tags and metadata are stored in the language they were generated
+
+---
+
+## 🤖 AI Providers
+
+Smart Gallery supports multiple AI providers for image analysis:
+
+### Available Providers
+
+| Provider | Model | Cost | Vision | Quality |
+|----------|-------|------|--------|----------|
+| **OpenAI** | GPT-4o | Paid | ✅ | Excellent |
+| **Grok** | Grok 2 Vision | Paid | ✅ | Excellent |
+| **OpenRouter** | Gemini 2.0 Flash | Economical | ✅ | Excellent |
+| **OpenRouter** | Qwen 2.5 VL | Free/Paid | ✅ | Good |
+| **OpenRouter** | Llama 4 Vision | Free/Paid | ✅ | Good |
+| **Ollama** | LLaVA 7B | Free (Local) | ✅ | Good |
+
+### Switching Providers
+
+1. Click the AI provider selector in the header
+2. Choose your preferred provider
+3. New uploads and re-analyses will use the selected provider
+
+### AI Analysis Features
+
+- **50-100+ Tags**: Exhaustive tagging covering objects, colors, composition, mood, etc.
+- **Detailed Description**: 2-3 sentence description identifying the scene type
+- **Dominant Colors**: Top 5 colors with percentages and names
+- **Quality Assessment**: Sharpness, lighting, composition ratings (0-100 score)
+- **Atmosphere**: Mood and ambiance description
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -249,7 +316,8 @@ smart-gallery/
 │   ├── database.js        # SQLite operations
 │   ├── auth.js            # JWT middleware
 │   ├── openai.js          # AI providers integration
-│   ├── queue.js           # Async processing queue
+│   ├── ai-providers-config.js  # AI models configuration
+│   ├── queue.js           # BullMQ async processing
 │   └── email.js           # Email service (Mailjet)
 ├── src/                    # Frontend
 │   ├── pages/
@@ -260,14 +328,24 @@ smart-gallery/
 │   ├── components/
 │   │   ├── AppLayout.jsx      # Layout wrapper
 │   │   ├── ProtectedRoute.jsx # Auth guard
+│   │   ├── ConfirmModal.jsx   # Confirmation dialogs
+│   │   ├── MobileWarningModal.jsx  # Mobile landscape warning
 │   │   └── ...
-│   └── contexts/
-│       └── AuthContext.jsx    # Auth state
+│   ├── contexts/
+│   │   └── AuthContext.jsx    # Auth state
+│   └── i18n/              # Internationalization
+│       ├── locales/
+│       │   ├── fr.json    # French translations
+│       │   ├── en.json    # English translations
+│       │   └── es.json    # Spanish translations
+│       └── index.js       # i18n configuration
 ├── uploads/                # Uploaded photos (gitignored)
 ├── database.db            # SQLite database (gitignored)
 ├── .env                   # Environment variables (gitignored)
 ├── ecosystem.config.cjs   # PM2 configuration
-└── vite.config.js         # Vite configuration
+├── vite.config.js         # Vite configuration
+└── public/
+    └── favicon.svg        # App favicon
 ```
 
 ---
@@ -306,21 +384,39 @@ After running `node create-admin.js`:
 
 ## 📝 API Endpoints
 
+### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/auth/login` | User login |
 | POST | `/api/auth/forgot-password` | Request password reset |
 | POST | `/api/auth/reset-password` | Reset password |
+
+### Photos
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/photos` | List all photos |
-| POST | `/api/photos` | Upload photo |
+| POST | `/api/photos/upload` | Upload photo (with AI analysis) |
 | DELETE | `/api/photos/:id` | Delete photo |
+| PUT | `/api/photos/:id/rename` | Rename photo |
+| POST | `/api/photos/:id/reanalyze` | Re-analyze photo with AI |
+| GET | `/api/photos/:id/metadata` | Get photo metadata |
+
+### Tags
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/photos/:id/tags` | Get photo tags |
-| POST | `/api/photos/:id/tags` | Add tag |
-| DELETE | `/api/photos/:id/tags/:tagId` | Remove tag |
+| POST | `/api/photos/:id/tags` | Add tag to photo |
+| DELETE | `/api/photos/:id/tags/:tagId` | Remove tag from photo |
+
+### Admin
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/admin/users` | List users (admin) |
 | POST | `/api/admin/users` | Create user (admin) |
 | PUT | `/api/admin/users/:id` | Update user (admin) |
 | DELETE | `/api/admin/users/:id` | Delete user (admin) |
+| GET | `/api/admin/settings` | Get app settings (admin) |
+| PUT | `/api/admin/settings` | Update app settings (admin) |
 
 ---
 
